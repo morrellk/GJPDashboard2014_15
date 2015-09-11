@@ -1,14 +1,16 @@
 ##   GJP_category.R
 ##   
-##   Function getCategoryScores() finds forecaster Brier scores by category and
+##   Function getCategoryScores finds forecaster Brier scores by category and
 ##   Plots the running Brier scores for forecaster and group by date questions
 ##   close.
 ##   
 ##   Usage:
-##   cat_df <- getCategoryScores( qGJPdt, outFile="cat_df.csv")
+##   cat_df <- getCategoryScores( qGJPdt, dropNA=FALSE, outFile="cat_df.csv")
 ##   
 ##   Arguments:
 ##        qGJPdt:  data table object as returned from processGJPDashboard()
+##        dropNA:  logical, True if want to use only questions where a forecast
+##                  was entered by this forecaster.  False - use all questions.
 ##        outFile: name of the csv file where results will be stored.
 ##
 ##   Output:
@@ -34,7 +36,15 @@
 ##
 ##   8 - Sep - 15   K. Morrell
 ##
-getCategoryScores <- function( qGJPdt, outFile="cat_df.csv") {
+getCategoryScores <- function( qGJPdt, dropNA = FALSE, outFile="cat_df.csv") {
+     
+     ## Determine how to deal with NA's first
+     if (dropNA) {
+          ## First, drop the questions with no forecasts by this person
+          ## Note: version in environment should remain the same.
+          qGJPdt <- filter(qGJPdt, Forecasts > 0)
+     }
+     
      
      ##   Make sure the category columns are logicals
      ##   hard-coded category column start and end - should fix
@@ -48,9 +58,9 @@ getCategoryScores <- function( qGJPdt, outFile="cat_df.csv") {
      for (c in cat_col_start:cat_col_end){
           qGJPdt[[c]] <- as.logical(qGJPdt[[c]])
           cat_scores[c-cat_col_start+1] <- 
-               round( mean( qGJPdt$BrierScore[ which(qGJPdt[[c]])]),digits=3)
+               round( mean( qGJPdt$BrierScore[ which(qGJPdt[[c]] )]),digits=3)
           grp_scores[c-cat_col_start+1] <- 
-               round( mean( qGJPdt$GroupScore[ which(qGJPdt[[c]])]),digits=3)
+               round( mean( qGJPdt$GroupScore[ which(qGJPdt[[c]] )]),digits=3)
           nques[c-cat_col_start+1] <- sum(qGJPdt[[c]])
           cat_name[c-cat_col_start+1] <- names(qGJPdt)[c]
      }
@@ -67,8 +77,22 @@ getCategoryScores <- function( qGJPdt, outFile="cat_df.csv") {
      ## questions in the category.
      cat_df <- arrange(cat_df, desc(Better), desc(Diff), desc(N), Category)
      
-     ##
      ##   Add here quick plot of running scores
+     ##
+     ##   But, if dropNA is true, recalculate running scores
+     ##   using only the questions with forecasts
+     qGJPdt <- arrange(qGJPdt, as.Date(DateClosed,"%m/%d/%Y"))
+     
+     if (dropNA) {
+          for (n in 1:length(qGJPdt$QuestionNumber)){
+               qGJPdt$runBrier[n] <- round(mean(qGJPdt$BrierScore[1:n]), digits=3)
+               qGJPdt$runGroup[n] <- round(mean(qGJPdt$GroupScore[1:n]), digits=3)       
+          }                    
+     }
+     print(tail(qGJPdt$runBrier))
+     print(tail(qGJPdt$runGroup))
+     ##   Plot the scores
+     ##   
      y1 <- min( qGJPdt$runBrier, qGJPdt$runGroup)
      y2 <- max( qGJPdt$runBrier, qGJPdt$runGroup)
      x1 <- min( as.Date(qGJPdt$DateClosed,"%m/%d/%Y"))

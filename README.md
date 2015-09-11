@@ -30,9 +30,14 @@ directory.
 
 * Run:
 
-     qGJPdt <- processGJPDashboard("dashFile.html", "questFile.rtf","qGJPdt.csv")
+     qGJPdt <- processGJPDashboard( dashFile = "dashFile.html", 
+                                   questFile = "questFile.rtf",
+                                   outFile = "qGJPdt.csv")
+
      
-     cat_df <- getCategoryScores( qGJPdt, "cat_df.csv")
+     cat_df <- getCategoryScores( qGJPdt, dropNA = FALSE, outFile = "cat_df.csv")
+          + dropNA is logical and indicates whether to drop (TRUE) or use (FALSE) 
+          questions with no forecast by this participant.
      
 
 ## Inputs

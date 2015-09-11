@@ -14,11 +14,11 @@ questions page and added into the data frame
 * Categories are separated into individual variables in the data table, true/false
 for each question
 * CSV file containing question information and results is output.
-* Mean scores calculated by category
+* Mean scores calculated by category 
 * Category results placed in data table and output to CSV file.
 
 ### Output
-* Output for processGJPDashboard.R is a CSV file, default = "qGJPdt.csv", which contains the information from the question table on the dashboard as well as question categories.
+* Output for _processGJPDashboard()_ is a CSV file, default = "qGJPdt.csv", which contains the information from the question table on the dashboard as well as question categories.
 
 * Output for _getCategoryScores()_ (in GJP_category.R) is a CSV file, default =
 "cat_df.csv", containing question categories and information on how the forecaster
@@ -243,14 +243,20 @@ __cat_df.csv__
      
 3. N	
 	+ Number of questions which had this category label   
+     + If dropNA == TRUE, then this will only be questions where a forecast was
+     entered by this forecaster.  If dropNA == FALSE, all questions are used.
 	+ Integer
 
 4. Brier	
-	+ Mean forecaster Brier score for questions with this category label  
+	+ Mean forecaster Brier score for questions with this category label 
+     + If dropNA == TRUE, then this will only be calculated using questions with a 
+     forecast entered by this forecaster.  If dropNA == FALSE, all questions are used.
 	+ Floating point number, rounded to three digits after decimal
      
 5. Group
 	+ Mean group Brier score for questions with this category label
+     + If dropNA == TRUE, then this will only be calculated using questions with a 
+     forecast entered by this forecaster.  If dropNA == FALSE, all questions are used.
 	+ Floating point number, rounded to three digits after decimal
 
 6. Diff
